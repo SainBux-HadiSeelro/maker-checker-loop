@@ -3,17 +3,19 @@
 # ⚡ Maker-Checker Autonomous Loop
 ### *Zero-Trust Multi-Agent Synthesis & LLM-as-Judge Verification Protocol*
 
+[![Live Demo: Vercel](https://img.shields.io/badge/Live%20Demo-maker--checker--loop.vercel.app-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://maker-checker-loop.vercel.app/)
 [![Standard: RFC-011](https://img.shields.io/badge/Protocol-RFC--011-6366f1?style=for-the-badge&logo=git&logoColor=white)](SPEC.md)
 [![Pattern: Maker-Checker](https://img.shields.io/badge/Pattern-Maker--Checker-06b6d4?style=for-the-badge&logo=openai&logoColor=white)](SPEC.md)
 [![Topology: Dual-Agent Swarm](https://img.shields.io/badge/Topology-Dual--Agent%20Swarm-10b981?style=for-the-badge&logo=fastapi&logoColor=white)](SPEC.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-slate?style=for-the-badge)](LICENSE)
 
 <p align="center">
-  <a href="#-interactive-web-console"><b>🌐 Live Web Console</b></a> •
+  <a href="https://maker-checker-loop.vercel.app/"><b>🚀 Live Demo (Vercel)</b></a> •
+  <a href="#-interactive-web-console"><b>🌐 Web Console</b></a> •
   <a href="SPEC.md"><b>📋 RFC-011 Spec</b></a> •
   <a href="#-system-architecture"><b>📐 Architecture</b></a> •
   <a href="#-agent-specifications"><b>🤖 Agent Contracts</b></a> •
-  <a href="#-quickstart"><b>🚀 Quickstart</b></a>
+  <a href="#-quickstart"><b>⚡ Quickstart</b></a>
 </p>
 
 ---
@@ -66,7 +68,10 @@ This system implements two distinct agent roles defined under [RFC-011](SPEC.md)
 
 ## 🌐 Interactive Web Console
 
-A developer-grade orchestrator dashboard is available out of the box in [`index.html`](index.html).
+> 🚀 **Live Demo:** Experience the interactive orchestrator console directly on Vercel without cloning:  
+> **[https://maker-checker-loop.vercel.app/](https://maker-checker-loop.vercel.app/)**
+
+A developer-grade orchestrator dashboard is also available locally out of the box in [`index.html`](index.html).
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
