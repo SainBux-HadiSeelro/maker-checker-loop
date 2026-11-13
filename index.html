@@ -1,806 +1,332 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Maker-Checker Bugfix Loop — Interactive Visualizer</title>
-  <!-- Tailwind CSS CDN -->
+  <title>Maker-Checker Bugfix Loop</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- Canvas Confetti -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script>
     tailwind.config = {
-      darkMode: 'class',
       theme: {
         extend: {
           fontFamily: {
             sans: ['Inter', 'sans-serif'],
             mono: ['Fira Code', 'monospace'],
-          },
-          colors: {
-            brand: {
-              50: '#eef2ff',
-              500: '#6366f1',
-              600: '#4f46e5',
-              700: '#4338ca',
-            }
           }
         }
       }
     }
   </script>
-  <style>
-    /* Custom scrollbars */
-    ::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #18181b;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #3f3f46;
-      border-radius: 4px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #52525b;
-    }
-    .pulse-glow-green {
-      box-shadow: 0 0 25px rgba(34, 197, 94, 0.35);
-    }
-    .pulse-glow-red {
-      box-shadow: 0 0 25px rgba(239, 68, 68, 0.35);
-    }
-    .pulse-glow-blue {
-      box-shadow: 0 0 25px rgba(99, 102, 241, 0.35);
-    }
-  </style>
 </head>
-<body class="bg-zinc-950 text-zinc-100 font-sans min-h-screen flex flex-col antialiased selection:bg-indigo-500 selection:text-white">
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col antialiased">
 
-  <!-- Top Navigation Bar -->
-  <header class="border-b border-zinc-800 bg-zinc-900/70 backdrop-blur sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-      <div class="flex items-center space-x-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-          <i data-lucide="git-merge" class="w-5 h-5 text-white"></i>
+  <!-- Header -->
+  <header class="border-b border-slate-800 bg-slate-900/60 backdrop-blur sticky top-0 z-30">
+    <div class="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-white text-sm">
+          <i data-lucide="git-merge" class="w-4 h-4"></i>
         </div>
-        <div>
-          <h1 class="font-bold text-lg leading-tight flex items-center gap-2">
-            Maker-Checker Loop
-            <span class="text-xs px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 font-mono font-medium">Concept 11</span>
-          </h1>
-          <p class="text-xs text-zinc-400">Loop Engineering • LLM-as-Judge Bugfix Automation</p>
-        </div>
+        <span class="font-bold text-base text-white">Maker-Checker Loop</span>
+        <span class="text-xs px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 font-mono">Concept 11</span>
       </div>
-
-      <div class="flex items-center gap-3">
-        <a href="https://github.com/SainBux-HadiSeelro/maker-checker-loop" target="_blank" rel="noopener noreferrer" 
-           class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-sm font-medium border border-zinc-700 text-zinc-200 transition">
-          <i data-lucide="github" class="w-4 h-4"></i>
-          <span>GitHub Repo</span>
-        </a>
-      </div>
+      <a href="https://github.com/SainBux-HadiSeelro/maker-checker-loop" target="_blank" rel="noopener noreferrer" 
+         class="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white px-2.5 py-1.5 rounded-md border border-slate-700 bg-slate-800/80 transition">
+        <i data-lucide="github" class="w-3.5 h-3.5"></i>
+        GitHub
+      </a>
     </div>
   </header>
 
-  <!-- Main Content Container -->
-  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+  <!-- Main Content -->
+  <main class="flex-1 max-w-5xl w-full mx-auto px-4 py-8 space-y-6">
 
-    <!-- Hero / Concept Card -->
-    <section class="relative overflow-hidden rounded-2xl bg-gradient-to-b from-zinc-900 to-zinc-950 border border-zinc-800 p-6 sm:p-8">
-      <div class="absolute -right-16 -top-16 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
-      <div class="relative z-10 max-w-3xl">
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-950/60 border border-indigo-500/30 text-indigo-300 text-xs font-semibold mb-4">
-          <i data-lucide="shield-alert" class="w-3.5 h-3.5"></i>
-          Core Law of Agentic Workflows
-        </div>
-        <h2 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-          "The agent that writes the fix must <span class="text-transparent bg-clip-text bg-gradient-to-r from-red-400 via-rose-300 to-amber-300">never be</span> the agent that approves it."
-        </h2>
-        <p class="mt-3 text-zinc-400 text-sm sm:text-base leading-relaxed">
-          When an LLM evaluates its own code, it suffers from confirmation bias and will readily approve hardcoded, fake, or fragile patches. 
-          The <strong>Maker-Checker pattern</strong> isolates the implementer from an independent read-only reviewer with separate evaluation criteria.
-        </p>
+    <!-- Simple Concept Banner -->
+    <div class="text-center max-w-2xl mx-auto space-y-2">
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+        Maker-Checker Bugfix Demo
+      </h1>
+      <p class="text-sm text-slate-400">
+        <strong class="text-slate-200">Rule:</strong> The agent that writes the fix must <em>never</em> be the one that approves it.
+      </p>
+    </div>
+
+    <!-- Simple 2-Button Action Bar -->
+    <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-wrap items-center justify-between gap-3 shadow-md">
+      <div class="flex items-center gap-2 text-xs font-medium text-slate-400">
+        <span>Click to test loop:</span>
       </div>
 
-      <!-- Live Simulation Flow Badges -->
-      <div class="mt-8 grid grid-cols-1 sm:grid-cols-4 gap-4 text-center">
-        <div id="flow-step-1" class="transition-all duration-300 p-4 rounded-xl border border-zinc-800 bg-zinc-900/60 flex flex-col items-center">
-          <div class="w-8 h-8 rounded-full bg-zinc-800 text-zinc-400 flex items-center justify-center mb-2 font-mono text-sm font-bold step-number">1</div>
-          <span class="text-sm font-semibold text-zinc-200">Failing Test Found</span>
-          <span class="text-xs text-zinc-400 mt-1">Buggy calculator.py</span>
-        </div>
-        <div id="flow-step-2" class="transition-all duration-300 p-4 rounded-xl border border-zinc-800 bg-zinc-900/60 flex flex-col items-center">
-          <div class="w-8 h-8 rounded-full bg-zinc-800 text-zinc-400 flex items-center justify-center mb-2 font-mono text-sm font-bold step-number">2</div>
-          <span class="text-sm font-semibold text-zinc-200">Maker Generates Fix</span>
-          <span class="text-xs text-zinc-400 mt-1">Isolated git worktree</span>
-        </div>
-        <div id="flow-step-3" class="transition-all duration-300 p-4 rounded-xl border border-zinc-800 bg-zinc-900/60 flex flex-col items-center">
-          <div class="w-8 h-8 rounded-full bg-zinc-800 text-zinc-400 flex items-center justify-center mb-2 font-mono text-sm font-bold step-number">3</div>
-          <span class="text-sm font-semibold text-zinc-200">Checker Evaluates</span>
-          <span class="text-xs text-zinc-400 mt-1">Read-only LLM Judge</span>
-        </div>
-        <div id="flow-step-4" class="transition-all duration-300 p-4 rounded-xl border border-zinc-800 bg-zinc-900/60 flex flex-col items-center">
-          <div class="w-8 h-8 rounded-full bg-zinc-800 text-zinc-400 flex items-center justify-center mb-2 font-mono text-sm font-bold step-number">4</div>
-          <span class="text-sm font-semibold text-zinc-200">Merge or Discard</span>
-          <span class="text-xs text-zinc-400 mt-1">main branch protection</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- Simulation Controls Bar -->
-    <section class="bg-zinc-900/90 border border-zinc-800 rounded-xl p-5 shadow-xl flex flex-wrap items-center justify-between gap-4">
-      <div class="flex items-center gap-3">
-        <span class="text-xs font-mono font-bold uppercase tracking-wider text-zinc-400 flex items-center gap-1.5">
-          <i data-lucide="play-circle" class="w-4 h-4 text-indigo-400"></i>
-          Trigger Demo Run:
-        </span>
-        <button id="btn-run-good" onclick="runSimulation('good')" 
-                class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-sm flex items-center gap-2 shadow-lg shadow-emerald-950 transition active:scale-95">
-          <i data-lucide="check-circle" class="w-4 h-4"></i>
+      <div class="flex items-center gap-2.5 flex-wrap">
+        <button id="btn-good" onclick="runMode('good')" 
+                class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold flex items-center gap-1.5 transition shadow">
+          <i data-lucide="check" class="w-4 h-4"></i>
           Run Good Fix (PASS)
         </button>
-        <button id="btn-run-bad" onclick="runSimulation('bad')" 
-                class="px-4 py-2 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-medium text-sm flex items-center gap-2 shadow-lg shadow-rose-950 transition active:scale-95">
-          <i data-lucide="x-circle" class="w-4 h-4"></i>
+
+        <button id="btn-bad" onclick="runMode('bad')" 
+                class="px-4 py-2 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold flex items-center gap-1.5 transition shadow">
+          <i data-lucide="x" class="w-4 h-4"></i>
           Run Bad/Fake Fix (FAIL)
         </button>
-      </div>
 
-      <div class="flex items-center gap-4 text-xs">
-        <div class="flex items-center gap-2">
-          <span class="text-zinc-400">Speed:</span>
-          <select id="sim-speed" class="bg-zinc-800 border border-zinc-700 text-zinc-200 rounded px-2 py-1 text-xs outline-none">
-            <option value="1">1x Normal</option>
-            <option value="0.5">2x Fast</option>
-            <option value="0">Instant</option>
-          </select>
-        </div>
-        <button onclick="resetSimulation()" class="text-zinc-400 hover:text-zinc-200 flex items-center gap-1 transition">
+        <button onclick="resetAll()" class="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition border border-slate-700 flex items-center gap-1">
           <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
           Reset
         </button>
       </div>
-    </section>
+    </div>
 
-    <!-- Two Agents Workstation: Maker vs Checker -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Status Banner / Step Indicator -->
+    <div id="status-bar" class="p-3 rounded-lg border border-slate-800 bg-slate-900/50 flex items-center justify-between text-xs">
+      <div class="flex items-center gap-2">
+        <span id="status-dot" class="w-2.5 h-2.5 rounded-full bg-slate-500"></span>
+        <span id="status-text" class="text-slate-300 font-medium">Ready. Click "Run Good Fix" or "Run Bad/Fake Fix" above.</span>
+      </div>
+      <span id="branch-badge" class="font-mono text-[11px] px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">
+        branch: main
+      </span>
+    </div>
 
-      <!-- LEFT: Maker / Implementer Agent -->
-      <div class="rounded-xl border border-zinc-800 bg-zinc-900 flex flex-col overflow-hidden shadow-lg">
-        <!-- Agent Header -->
-        <div class="p-4 bg-zinc-800/60 border-b border-zinc-800 flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center font-bold">
-              <i data-lucide="wrench" class="w-4 h-4"></i>
-            </div>
-            <div>
-              <div class="font-bold text-sm text-zinc-100 flex items-center gap-2">
-                Maker (Implementer Agent)
-                <span id="maker-badge" class="text-[10px] px-2 py-0.5 rounded-full bg-zinc-700 text-zinc-300 font-mono">IDLE</span>
-              </div>
-              <div class="text-xs text-zinc-400 font-mono">.opencode/skills/fix-bug/SKILL.md</div>
-            </div>
-          </div>
-          <span class="text-xs text-amber-400 bg-amber-500/10 px-2 py-1 rounded border border-amber-500/20 flex items-center gap-1 font-mono">
-            <i data-lucide="edit-3" class="w-3 h-3"></i> Read/Write
-          </span>
-        </div>
+    <!-- 2 Columns: Maker vs Checker -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 
-        <!-- Agent Prompt Rules & Goal -->
-        <div class="px-4 py-3 bg-zinc-950/60 border-b border-zinc-800/80 text-xs text-zinc-400 font-mono space-y-1">
-          <div class="text-zinc-300 font-semibold mb-1 flex items-center gap-1">
-            <i data-lucide="terminal" class="w-3.5 h-3.5 text-indigo-400"></i> Rules of Engagement:
-          </div>
-          <div class="flex items-center gap-1.5"><span class="text-indigo-400">1.</span> Read the failing test suite (`test_calculator.py`).</div>
-          <div class="flex items-center gap-1.5"><span class="text-indigo-400">2.</span> Fix only source code (`calculator.py`). Never edit tests.</div>
-          <div class="flex items-center gap-1.5"><span class="text-indigo-400">3.</span> Must be general — do NOT hardcode test return values!</div>
-        </div>
-
-        <!-- Code File Viewer -->
-        <div class="p-4 flex-1 flex flex-col bg-zinc-950">
-          <div class="flex items-center justify-between pb-2 text-xs text-zinc-400 font-mono">
-            <span class="flex items-center gap-1.5 text-zinc-300">
-              <i data-lucide="file-code" class="w-3.5 h-3.5 text-amber-400"></i> calculator.py
+      <!-- LEFT: Maker (Coder) -->
+      <div class="rounded-xl border border-slate-800 bg-slate-900 overflow-hidden flex flex-col">
+        <div class="p-3.5 bg-slate-800/60 border-b border-slate-800 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="w-6 h-6 rounded bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs">
+              <i data-lucide="code" class="w-3.5 h-3.5"></i>
             </span>
-            <span id="maker-worktree-tag" class="text-zinc-500 text-[11px]">worktree: main</span>
+            <span class="font-bold text-sm text-slate-200">1. Maker (Implementer)</span>
+          </div>
+          <span id="maker-tag" class="text-[11px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-400">Idle</span>
+        </div>
+
+        <div class="p-4 flex-1 flex flex-col space-y-3">
+          <div class="text-xs text-slate-400 flex items-center justify-between">
+            <span>Code in isolated worktree:</span>
+            <span class="font-mono text-slate-500">calculator.py</span>
           </div>
 
-          <pre id="maker-code" class="font-mono text-xs text-zinc-300 p-3 bg-zinc-900 rounded-lg border border-zinc-800/80 overflow-x-auto flex-1 leading-relaxed">
-<span class="text-purple-400">import</span> math
+          <pre id="code-display" class="font-mono text-xs text-slate-300 bg-slate-950 p-3 rounded-lg border border-slate-800/80 overflow-x-auto leading-relaxed flex-1">
+# Original baseline
+def add(a, b):
+    return a + b
 
-<span class="text-blue-400">def</span> <span class="text-yellow-300">add</span>(a, b):
-    <span class="text-purple-400">return</span> a + b
+def divide(a, b):
+    if b == 0:
+        raise ValueError("division by zero")
+    return a / b</pre>
 
-<span class="text-blue-400">def</span> <span class="text-yellow-300">subtract</span>(a, b):
-    <span class="text-purple-400">return</span> a - b
-
-<span class="text-blue-400">def</span> <span class="text-yellow-300">multiply</span>(a, b):
-    <span class="text-purple-400">if</span> a == 0 <span class="text-purple-400">or</span> b == 0:
-        <span class="text-purple-400">return</span> 0
-    <span class="text-purple-400">return</span> a * b
-
-<span class="text-blue-400">def</span> <span class="text-yellow-300">divide</span>(a, b):
-    <span class="text-purple-400">if</span> b == 0:
-        <span class="text-purple-400">raise</span> <span class="text-red-400">ValueError</span>(<span class="text-emerald-300">"division by zero"</span>)
-    <span class="text-purple-400">return</span> a / b</pre>
-
-          <!-- Maker thought / actions status -->
-          <div id="maker-status-box" class="mt-3 p-3 rounded-lg bg-zinc-900/80 border border-zinc-800 text-xs text-zinc-400 flex items-start gap-2">
-            <i data-lucide="info" class="w-4 h-4 text-zinc-400 flex-shrink-0 mt-0.5"></i>
-            <div id="maker-status-text">Ready. Click a demo run above to start the maker agent.</div>
-          </div>
+          <p id="maker-note" class="text-xs text-slate-400 border-t border-slate-800/60 pt-2">
+            The maker's task is to fix failing tests without altering the test files.
+          </p>
         </div>
       </div>
 
-      <!-- RIGHT: Checker / Reviewer Agent -->
-      <div class="rounded-xl border border-zinc-800 bg-zinc-900 flex flex-col overflow-hidden shadow-lg">
-        <!-- Agent Header -->
-        <div class="p-4 bg-zinc-800/60 border-b border-zinc-800 flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-lg bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 flex items-center justify-center font-bold">
-              <i data-lucide="shield-check" class="w-4 h-4"></i>
-            </div>
-            <div>
-              <div class="font-bold text-sm text-zinc-100 flex items-center gap-2">
-                Checker (Reviewer Agent)
-                <span id="checker-badge" class="text-[10px] px-2 py-0.5 rounded-full bg-zinc-700 text-zinc-300 font-mono">IDLE</span>
-              </div>
-              <div class="text-xs text-zinc-400 font-mono">.opencode/agent/reviewer.md</div>
-            </div>
-          </div>
-          <span class="text-xs text-cyan-400 bg-cyan-500/10 px-2 py-1 rounded border border-cyan-500/20 flex items-center gap-1 font-mono">
-            <i data-lucide="lock" class="w-3 h-3"></i> Read-Only Judge
-          </span>
-        </div>
-
-        <!-- Review Criteria -->
-        <div class="px-4 py-3 bg-zinc-950/60 border-b border-zinc-800/80 text-xs text-zinc-400 font-mono space-y-1">
-          <div class="text-zinc-300 font-semibold mb-1 flex items-center gap-1">
-            <i data-lucide="award" class="w-3.5 h-3.5 text-cyan-400"></i> Grading Rubric:
-          </div>
-          <div class="flex items-center gap-1.5"><span class="text-cyan-400">1.</span> Underlying bug correctly resolved?</div>
-          <div class="flex items-center gap-1.5"><span class="text-cyan-400">2.</span> Is the solution general (or does it fake/hardcode output)?</div>
-          <div class="flex items-center gap-1.5"><span class="text-cyan-400">3.</span> Edge cases tested against secret inputs.</div>
-        </div>
-
-        <!-- Reviewer Verdict & Inspector -->
-        <div class="p-4 flex-1 flex flex-col bg-zinc-950">
-          <div class="flex items-center justify-between pb-2 text-xs text-zinc-400 font-mono">
-            <span class="flex items-center gap-1.5 text-zinc-300">
-              <i data-lucide="scale" class="w-3.5 h-3.5 text-cyan-400"></i> Reviewer Verdict
+      <!-- RIGHT: Checker (Reviewer) -->
+      <div class="rounded-xl border border-slate-800 bg-slate-900 overflow-hidden flex flex-col">
+        <div class="p-3.5 bg-slate-800/60 border-b border-slate-800 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="w-6 h-6 rounded bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-xs">
+              <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
             </span>
-            <span id="checker-verdict-tag" class="text-zinc-500 font-mono font-bold text-xs">AWAITING REVIEW</span>
+            <span class="font-bold text-sm text-slate-200">2. Checker (Reviewer)</span>
           </div>
+          <span id="checker-tag" class="text-[11px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-400">Read-Only</span>
+        </div>
 
-          <!-- Verdict Display Card -->
-          <div id="verdict-card" class="p-4 rounded-xl border border-zinc-800 bg-zinc-900/60 flex flex-col items-center justify-center text-center min-h-[160px] transition-all duration-300">
-            <div id="verdict-icon" class="w-12 h-12 rounded-full bg-zinc-800 text-zinc-500 flex items-center justify-center mb-2">
-              <i data-lucide="clock" class="w-6 h-6"></i>
-            </div>
-            <h3 id="verdict-title" class="text-base font-bold text-zinc-300">No Review in Progress</h3>
-            <p id="verdict-desc" class="text-xs text-zinc-400 mt-1 max-w-sm">
-              Trigger a test run to observe how the independent checker evaluates and grades the candidate patch.
+        <div class="p-4 flex-1 flex flex-col space-y-3 justify-between">
+          
+          <!-- Big Verdict Card -->
+          <div id="verdict-box" class="p-4 rounded-xl border border-slate-800 bg-slate-950 text-center flex flex-col items-center justify-center min-h-[140px] transition-all">
+            <span id="verdict-pill" class="text-xs font-mono font-bold px-3 py-1 rounded-full bg-slate-800 text-slate-400 uppercase tracking-wider mb-2">
+              Waiting for Run
+            </span>
+            <h3 id="verdict-title" class="text-base font-bold text-slate-300">No Review Run Yet</h3>
+            <p id="verdict-reason" class="text-xs text-slate-400 mt-1 max-w-xs">
+              An independent reviewer checks if the solution is general or cheats with hardcoded returns.
             </p>
           </div>
 
-          <!-- Secret Edge Case Verification Matrix -->
-          <div class="mt-4 p-3 rounded-lg bg-zinc-900/80 border border-zinc-800">
-            <div class="text-xs font-mono font-semibold text-zinc-300 mb-2 flex items-center justify-between">
-              <span>Checker Secret Test Suite:</span>
-              <span id="suite-status" class="text-[10px] text-zinc-500 font-normal">Pending</span>
-            </div>
-            <div class="space-y-1.5 text-xs font-mono">
-              <div id="test-row-1" class="flex items-center justify-between p-1.5 rounded bg-zinc-950/50 text-zinc-400">
-                <span>test_add_floats (0.1 + 0.2 ≈ 0.3)</span>
-                <span class="text-zinc-500 test-pill">⚪ Pending</span>
-              </div>
-              <div id="test-row-2" class="flex items-center justify-between p-1.5 rounded bg-zinc-950/50 text-zinc-400">
-                <span>test_multiply_with_zero (0 * 5 == 0)</span>
-                <span class="text-zinc-500 test-pill">⚪ Pending</span>
-              </div>
-              <div id="test-row-3" class="flex items-center justify-between p-1.5 rounded bg-zinc-950/50 text-zinc-400">
-                <span>test_divide_by_zero (ValueError)</span>
-                <span class="text-zinc-500 test-pill">⚪ Pending</span>
-              </div>
-              <div id="test-row-4" class="flex items-center justify-between p-1.5 rounded bg-zinc-950/50 text-zinc-400">
-                <span>checker_generality_check (no hardcoded cheats)</span>
-                <span class="text-zinc-500 test-pill">⚪ Pending</span>
-              </div>
+          <!-- Git Decision Box -->
+          <div class="border-t border-slate-800/60 pt-3">
+            <div class="text-xs text-slate-400 mb-1 font-medium">Git Merge Action:</div>
+            <div id="git-action-box" class="p-2.5 rounded-lg bg-slate-950 border border-slate-800/80 text-xs font-mono text-slate-400 flex items-center justify-between">
+              <span id="git-action-text">No action taken</span>
+              <span id="git-badge" class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-slate-400">Standby</span>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
 
-    <!-- Live Terminal Logs & Git State -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-      <!-- Terminal Output Window (2 Cols) -->
-      <div class="lg:col-span-2 rounded-xl border border-zinc-800 bg-zinc-900 overflow-hidden shadow-lg flex flex-col">
-        <div class="px-4 py-2.5 bg-zinc-800/80 border-b border-zinc-800 flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <div class="w-3 h-3 rounded-full bg-rose-500/80"></div>
-            <div class="w-3 h-3 rounded-full bg-amber-500/80"></div>
-            <div class="w-3 h-3 rounded-full bg-emerald-500/80"></div>
-            <span class="ml-2 font-mono text-xs text-zinc-300">bash: ./run_bugfix_loop.sh</span>
-          </div>
-          <button onclick="clearTerminal()" class="text-xs text-zinc-400 hover:text-zinc-200 transition">Clear</button>
-        </div>
-        <div id="terminal-body" class="p-4 bg-black font-mono text-xs text-emerald-400 h-64 overflow-y-auto space-y-1.5 leading-relaxed">
-          <div class="text-zinc-500"># Maker-Checker Bugfix Loop Orchestrator initialized.</div>
-          <div class="text-zinc-500"># Select "Run Good Fix" or "Run Bad/Fake Fix" to simulate.</div>
-          <div class="text-zinc-400 flex items-center gap-2">
-            <span class="text-indigo-400">$</span>
-            <span class="animate-pulse">_</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Git Branch & Merge Status (1 Col) -->
-      <div class="rounded-xl border border-zinc-800 bg-zinc-900 p-5 shadow-lg flex flex-col justify-between">
-        <div>
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="font-bold text-sm text-zinc-100 flex items-center gap-2">
-              <i data-lucide="git-branch" class="w-4 h-4 text-indigo-400"></i>
-              Git Branch State
-            </h3>
-            <span id="git-status-badge" class="text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-800 text-zinc-300">UP-TO-DATE</span>
-          </div>
-
-          <!-- Branch Visualization -->
-          <div class="space-y-4 font-mono text-xs">
-            <div class="p-3 rounded-lg bg-zinc-950 border border-zinc-800">
-              <div class="flex items-center justify-between text-zinc-300 font-bold mb-1">
-                <span class="flex items-center gap-1.5">
-                  <span class="w-2 h-2 rounded-full bg-indigo-400"></span> main branch
-                </span>
-                <span id="main-commit-hash" class="text-zinc-500 font-normal">a1304cc</span>
-              </div>
-              <div id="main-branch-desc" class="text-zinc-400 text-[11px]">Clean, protected production branch.</div>
-            </div>
-
-            <div class="p-3 rounded-lg bg-zinc-950 border border-zinc-800">
-              <div class="flex items-center justify-between text-zinc-300 font-bold mb-1">
-                <span class="flex items-center gap-1.5">
-                  <span id="worktree-indicator" class="w-2 h-2 rounded-full bg-zinc-600"></span> 
-                  <span id="worktree-name">worktree (fix-*)</span>
-                </span>
-                <span id="worktree-status" class="text-zinc-500 font-normal">Inactive</span>
-              </div>
-              <div id="worktree-desc" class="text-zinc-400 text-[11px]">Created on-demand; pruned after review.</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="mt-4 pt-4 border-t border-zinc-800/80">
-          <div class="text-[11px] text-zinc-400 leading-tight">
-            <strong>Rule:</strong> No commit touches <code class="text-indigo-300">main</code> unless the Checker awards an explicit <code class="text-emerald-400">PASS</code> verdict.
-          </div>
         </div>
       </div>
 
     </div>
 
-    <!-- Live Calculator Sandbox Playground -->
-    <section class="rounded-xl border border-zinc-800 bg-zinc-900/60 p-6 shadow-xl">
-      <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
-        <div>
-          <h3 class="font-bold text-base text-zinc-100 flex items-center gap-2">
-            <i data-lucide="calculator" class="w-5 h-5 text-indigo-400"></i>
-            Interactive Calculator Sandbox
-          </h3>
-          <p class="text-xs text-zinc-400">Test how the active calculator implementation behaves on standard and edge-case inputs.</p>
-        </div>
-        <div class="flex items-center gap-2">
-          <span class="text-xs text-zinc-400">Active Version:</span>
-          <span id="active-calc-version" class="text-xs font-mono font-bold px-2 py-1 rounded bg-zinc-800 text-indigo-300 border border-zinc-700">Initial Buggy State</span>
-        </div>
+    <!-- Compact Execution Summary -->
+    <div class="rounded-xl border border-slate-800 bg-slate-900 p-4 space-y-2">
+      <div class="flex items-center justify-between text-xs text-slate-400">
+        <span class="font-bold text-slate-300 flex items-center gap-1.5">
+          <i data-lucide="terminal" class="w-3.5 h-3.5 text-indigo-400"></i>
+          Execution Output
+        </span>
+        <span class="font-mono text-[11px]">./run_bugfix_loop.sh</span>
       </div>
-
-      <!-- Quick Test Buttons -->
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
-        <button onclick="runCalcTest(0.1, 0.2, 'add')" class="p-3 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-left transition group">
-          <div class="text-xs font-mono font-semibold text-zinc-300 group-hover:text-indigo-400">add(0.1, 0.2)</div>
-          <div class="text-[11px] text-zinc-500 mt-0.5">Floating-point addition test (0.3)</div>
-        </button>
-        <button onclick="runCalcTest(0, 5, 'multiply')" class="p-3 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-left transition group">
-          <div class="text-xs font-mono font-semibold text-zinc-300 group-hover:text-indigo-400">multiply(0, 5)</div>
-          <div class="text-[11px] text-zinc-500 mt-0.5">Zero-multiplication test (0)</div>
-        </button>
-        <button onclick="runCalcTest(10, 0, 'divide')" class="p-3 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-left transition group">
-          <div class="text-xs font-mono font-semibold text-zinc-300 group-hover:text-indigo-400">divide(10, 0)</div>
-          <div class="text-[11px] text-zinc-500 mt-0.5">Division by zero safety (ValueError)</div>
-        </button>
+      <div id="log-box" class="bg-slate-950 p-3 rounded-lg border border-slate-800/80 font-mono text-xs text-slate-400 space-y-1 h-28 overflow-y-auto">
+        <div class="text-slate-500"># System ready. Choose a mode to simulate maker-checker loop.</div>
       </div>
-
-      <!-- Calculator Input Form -->
-      <div class="bg-zinc-950 p-4 rounded-xl border border-zinc-800 flex flex-wrap items-center gap-3">
-        <input type="number" id="calc-a" value="0.1" step="any" placeholder="Operand A" class="bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-1.5 text-sm text-zinc-100 font-mono w-28 focus:outline-none focus:border-indigo-500">
-        <select id="calc-op" class="bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-1.5 text-sm text-zinc-100 font-mono focus:outline-none focus:border-indigo-500">
-          <option value="add">+</option>
-          <option value="subtract">-</option>
-          <option value="multiply">×</option>
-          <option value="divide">÷</option>
-        </select>
-        <input type="number" id="calc-b" value="0.2" step="any" placeholder="Operand B" class="bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-1.5 text-sm text-zinc-100 font-mono w-28 focus:outline-none focus:border-indigo-500">
-        
-        <button onclick="calculateManual()" class="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-medium transition flex items-center gap-1.5">
-          <i data-lucide="play" class="w-3.5 h-3.5"></i>
-          Calculate
-        </button>
-
-        <div class="flex-1 flex items-center justify-end font-mono text-sm">
-          <span class="text-zinc-400 mr-2">Result:</span>
-          <span id="calc-result" class="px-3 py-1 rounded bg-zinc-900 border border-zinc-800 text-emerald-400 font-bold">0.30000000000000004 (Float Drift)</span>
-        </div>
-      </div>
-    </section>
+    </div>
 
   </main>
 
   <!-- Footer -->
-  <footer class="border-t border-zinc-800 py-6 text-center text-xs text-zinc-500">
-    <p>Maker-Checker Bugfix Loop • Loop Engineering Concept 11 Visualizer</p>
-    <p class="mt-1">Implemented with HTML5, Tailwind CSS & JavaScript. Ready for GitHub Pages.</p>
+  <footer class="border-t border-slate-800 py-4 text-center text-xs text-slate-500">
+    Maker-Checker Bugfix Loop • Concept 11 • Clean & Simple Visualizer
   </footer>
 
-  <!-- Simulation Logic Script -->
   <script>
     lucide.createIcons();
 
-    // Project Code Templates
-    const ORIGINAL_CODE = `import math
-
+    const CODE_BASE = `# Original baseline
 def add(a, b):
     return a + b
-
-def subtract(a, b):
-    return a - b
-
-def multiply(a, b):
-    if a == 0 or b == 0:
-        return 0
-    return a * b
 
 def divide(a, b):
     if b == 0:
         raise ValueError("division by zero")
     return a / b`;
 
-    const GOOD_FIX_CODE = `import math
+    const CODE_GOOD = `# Good Fix: Handles float rounding & ZeroDivision cleanly
+import math
 
 def add(a, b):
-    # Properly handles floating point rounding issues
     return math.floor(a + b + 0.5) if isinstance(a, float) and isinstance(b, float) else a + b
-
-def subtract(a, b):
-    return a - b
-
-def multiply(a, b):
-    if a == 0 or b == 0:
-        return 0
-    return a * b
 
 def divide(a, b):
     if b == 0:
         raise ValueError("Cannot divide by zero")
     return a / b`;
 
-    const BAD_FIX_CODE = `def add(a, b):
-    return 0.3  # CHEAT: hardcoded fake fix
-
-def subtract(a, b):
-    return a - b
-
-def multiply(a, b):
-    if a == 0 or b == 0:
-        return 5  # CHEAT: hardcoded incorrect logic
+    const CODE_BAD = `# Bad Fix: Fakes tests with hardcoded output!
+def add(a, b):
+    return 0.3  # CHEAT: Hardcoded for test_add_floats
 
 def divide(a, b):
     if b == 0:
-        return 0  # CHEAT: fails to raise ValueError`;
+        return 0  # CHEAT: Doesn't raise ValueError`;
 
-    // Active state
-    let activeVersion = 'initial';
-    let isRunning = false;
-
-    function getDelay() {
-      const sp = document.getElementById('sim-speed').value;
-      return parseFloat(sp);
-    }
-
-    function sleep(ms) {
-      const factor = getDelay();
-      if (factor === 0) return Promise.resolve();
-      return new Promise(resolve => setTimeout(resolve, ms * factor));
-    }
-
-    function logTerminal(text, colorClass = 'text-zinc-300') {
-      const term = document.getElementById('terminal-body');
+    function addLog(text, color = 'text-slate-300') {
+      const box = document.getElementById('log-box');
       const div = document.createElement('div');
-      div.className = `${colorClass} leading-relaxed`;
-      div.innerHTML = text;
-      term.appendChild(div);
-      term.scrollTop = term.scrollHeight;
+      div.className = `${color} leading-snug`;
+      div.innerText = text;
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
     }
 
-    function clearTerminal() {
-      const term = document.getElementById('terminal-body');
-      term.innerHTML = '<div class="text-zinc-500"># Terminal cleared.</div>';
+    function resetAll() {
+      document.getElementById('code-display').innerText = CODE_BASE;
+      document.getElementById('maker-note').innerText = "The maker's task is to fix failing tests without altering the test files.";
+      document.getElementById('maker-tag').innerText = "Idle";
+      document.getElementById('maker-tag').className = "text-[11px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-400";
+
+      document.getElementById('verdict-box').className = "p-4 rounded-xl border border-slate-800 bg-slate-950 text-center flex flex-col items-center justify-center min-h-[140px] transition-all";
+      document.getElementById('verdict-pill').className = "text-xs font-mono font-bold px-3 py-1 rounded-full bg-slate-800 text-slate-400 uppercase tracking-wider mb-2";
+      document.getElementById('verdict-pill').innerText = "Waiting for Run";
+      document.getElementById('verdict-title').innerText = "No Review Run Yet";
+      document.getElementById('verdict-title').className = "text-base font-bold text-slate-300";
+      document.getElementById('verdict-reason').innerText = "An independent reviewer checks if the solution is general or cheats with hardcoded returns.";
+
+      document.getElementById('git-action-text').innerText = "No action taken";
+      document.getElementById('git-action-text').className = "text-slate-400";
+      document.getElementById('git-badge').innerText = "Standby";
+      document.getElementById('git-badge').className = "px-2 py-0.5 rounded text-[10px] bg-slate-800 text-slate-400";
+
+      document.getElementById('status-dot').className = "w-2.5 h-2.5 rounded-full bg-slate-500";
+      document.getElementById('status-text').innerText = 'Ready. Click "Run Good Fix" or "Run Bad/Fake Fix" above.';
+      document.getElementById('branch-badge').innerText = "branch: main";
+
+      const log = document.getElementById('log-box');
+      log.innerHTML = '<div class="text-slate-500"># System reset. Ready for next run.</div>';
     }
 
-    function setStep(stepNum, status) {
-      // status: 'active', 'done', 'error', 'reset'
-      for (let i = 1; i <= 4; i++) {
-        const el = document.getElementById(`flow-step-${i}`);
-        const num = el.querySelector('.step-number');
-        if (i < stepNum) {
-          el.className = 'transition-all duration-300 p-4 rounded-xl border border-emerald-500/40 bg-emerald-950/20 flex flex-col items-center';
-          num.className = 'w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center mb-2 font-mono text-sm font-bold step-number';
-        } else if (i === stepNum) {
-          if (status === 'error') {
-            el.className = 'transition-all duration-300 p-4 rounded-xl border border-rose-500/50 bg-rose-950/30 flex flex-col items-center pulse-glow-red';
-            num.className = 'w-8 h-8 rounded-full bg-rose-600 text-white flex items-center justify-center mb-2 font-mono text-sm font-bold step-number';
-          } else {
-            el.className = 'transition-all duration-300 p-4 rounded-xl border border-indigo-500/50 bg-indigo-950/30 flex flex-col items-center pulse-glow-blue';
-            num.className = 'w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center mb-2 font-mono text-sm font-bold step-number';
-          }
-        } else {
-          el.className = 'transition-all duration-300 p-4 rounded-xl border border-zinc-800 bg-zinc-900/60 flex flex-col items-center opacity-60';
-          num.className = 'w-8 h-8 rounded-full bg-zinc-800 text-zinc-400 flex items-center justify-center mb-2 font-mono text-sm font-bold step-number';
-        }
-      }
-    }
-
-    function resetSimulation() {
-      isRunning = false;
-      activeVersion = 'initial';
-      setStep(1, 'active');
-      document.getElementById('maker-badge').className = 'text-[10px] px-2 py-0.5 rounded-full bg-zinc-700 text-zinc-300 font-mono';
-      document.getElementById('maker-badge').innerText = 'IDLE';
-      document.getElementById('checker-badge').className = 'text-[10px] px-2 py-0.5 rounded-full bg-zinc-700 text-zinc-300 font-mono';
-      document.getElementById('checker-badge').innerText = 'IDLE';
-
-      document.getElementById('maker-code').innerText = ORIGINAL_CODE;
-      document.getElementById('maker-worktree-tag').innerText = 'worktree: main';
-      document.getElementById('maker-status-text').innerText = 'Ready. Click a demo run above to start the maker agent.';
-
-      const vcard = document.getElementById('verdict-card');
-      vcard.className = 'p-4 rounded-xl border border-zinc-800 bg-zinc-900/60 flex flex-col items-center justify-center text-center min-h-[160px] transition-all duration-300';
-      document.getElementById('verdict-icon').innerHTML = '<i data-lucide="clock" class="w-6 h-6"></i>';
-      document.getElementById('verdict-title').innerText = 'No Review in Progress';
-      document.getElementById('verdict-title').className = 'text-base font-bold text-zinc-300';
-      document.getElementById('verdict-desc').innerText = 'Trigger a test run to observe how the independent checker evaluates and grades the candidate patch.';
-      document.getElementById('checker-verdict-tag').innerText = 'AWAITING REVIEW';
-      document.getElementById('checker-verdict-tag').className = 'text-zinc-500 font-mono font-bold text-xs';
-
-      document.getElementById('active-calc-version').innerText = 'Initial Buggy State';
-      document.getElementById('active-calc-version').className = 'text-xs font-mono font-bold px-2 py-1 rounded bg-zinc-800 text-zinc-300 border border-zinc-700';
-
-      document.getElementById('worktree-name').innerText = 'worktree (fix-*)';
-      document.getElementById('worktree-status').innerText = 'Inactive';
-      document.getElementById('worktree-indicator').className = 'w-2 h-2 rounded-full bg-zinc-600';
-      document.getElementById('git-status-badge').innerText = 'UP-TO-DATE';
-      document.getElementById('git-status-badge').className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-800 text-zinc-300';
-
-      // Reset test rows
-      for (let i = 1; i <= 4; i++) {
-        const row = document.getElementById(`test-row-${i}`);
-        row.querySelector('.test-pill').innerHTML = '⚪ Pending';
-        row.querySelector('.test-pill').className = 'text-zinc-500 test-pill';
-      }
-      document.getElementById('suite-status').innerText = 'Pending';
-      document.getElementById('suite-status').className = 'text-[10px] text-zinc-500 font-normal';
-
-      logTerminal('<span class="text-zinc-500">--- Simulation state reset to clean baseline ---</span>');
-      lucide.createIcons();
-    }
-
-    async function runSimulation(mode) {
-      if (isRunning) return;
-      isRunning = true;
-
-      // Lock buttons
-      document.getElementById('btn-run-good').disabled = true;
-      document.getElementById('btn-run-bad').disabled = true;
-
-      clearTerminal();
-      logTerminal(`<span class="text-yellow-400 font-bold">[LOOP START]</span> Running: ./run_bugfix_loop.sh ${mode}`);
-      await sleep(500);
-
-      // STEP 1: Discovery & Worktree isolation
-      setStep(1, 'active');
-      logTerminal(`<span class="text-zinc-400">$ git worktree add "fix-${mode}" main</span>`);
-      document.getElementById('worktree-name').innerText = `worktree (fix-${mode})`;
-      document.getElementById('worktree-status').innerText = 'Active (Isolated)';
-      document.getElementById('worktree-indicator').className = 'w-2 h-2 rounded-full bg-amber-400 animate-pulse';
-      document.getElementById('maker-worktree-tag').innerText = `worktree: fix-${mode}`;
-      await sleep(700);
-
-      // STEP 2: Maker implementer agent
-      setStep(2, 'active');
-      document.getElementById('maker-badge').className = 'text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 font-mono animate-pulse';
-      document.getElementById('maker-badge').innerText = 'SYNTHESIZING FIX';
-      logTerminal(`<span class="text-indigo-400">maker-agent:</span> Analyzing test failures in test_calculator.py...`);
-      document.getElementById('maker-status-text').innerText = 'Agent reading failing assertions and generating patch...';
-      await sleep(1000);
+    function runMode(mode) {
+      const log = document.getElementById('log-box');
+      log.innerHTML = '';
 
       if (mode === 'good') {
-        document.getElementById('maker-code').innerText = GOOD_FIX_CODE;
-        logTerminal(`<span class="text-indigo-400">maker-agent:</span> Applied general fix with floating-point math tolerance.`);
-        document.getElementById('maker-status-text').innerText = 'Fix applied: Handled floating point precision & ZeroDivisionError cleanly.';
-      } else {
-        document.getElementById('maker-code').innerText = BAD_FIX_CODE;
-        logTerminal(`<span class="text-rose-400">maker-agent (cheating):</span> Hardcoded return values for specific test inputs!`);
-        document.getElementById('maker-status-text').innerText = 'Maker cheated! Returned static values (return 0.3) to falsely pass test cases.';
-      }
-      document.getElementById('maker-badge').className = 'text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-mono';
-      document.getElementById('maker-badge').innerText = 'COMMITTED';
-      await sleep(800);
+        // Status Bar
+        document.getElementById('status-dot').className = "w-2.5 h-2.5 rounded-full bg-emerald-500";
+        document.getElementById('status-text').innerText = "Running Good Fix: General fix generated and approved.";
+        document.getElementById('branch-badge').innerText = "merged into: main";
 
-      // STEP 3: Checker reviewer agent
-      setStep(3, 'active');
-      document.getElementById('checker-badge').className = 'text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 font-mono animate-pulse';
-      document.getElementById('checker-badge').innerText = 'REVIEWING';
-      logTerminal(`<span class="text-cyan-400">checker-agent:</span> Inspecting git diff and running test matrix...`);
-      document.getElementById('suite-status').innerText = 'Testing...';
-      document.getElementById('suite-status').className = 'text-[10px] text-cyan-400 font-normal';
-      await sleep(600);
+        // Maker
+        document.getElementById('maker-tag').innerText = "Fix Written";
+        document.getElementById('maker-tag').className = "text-[11px] font-mono px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800";
+        document.getElementById('code-display').innerText = CODE_GOOD;
+        document.getElementById('maker-note').innerText = "Maker wrote a general solution handling floating point precision & proper exceptions.";
 
-      // Run tests in UI
-      const testPills = [
-        { id: 1, pass: true },
-        { id: 2, pass: mode === 'good' },
-        { id: 3, pass: mode === 'good' },
-        { id: 4, pass: mode === 'good' },
-      ];
+        // Checker
+        document.getElementById('verdict-box').className = "p-4 rounded-xl border border-emerald-500/50 bg-emerald-950/20 text-center flex flex-col items-center justify-center min-h-[140px] transition-all";
+        document.getElementById('verdict-pill').className = "text-xs font-mono font-bold px-3 py-1 rounded-full bg-emerald-600 text-white uppercase tracking-wider mb-2 shadow";
+        document.getElementById('verdict-pill').innerText = "PASS — Approved";
+        document.getElementById('verdict-title').innerText = "Fix is Correct & General";
+        document.getElementById('verdict-title').className = "text-base font-bold text-emerald-400";
+        document.getElementById('verdict-reason').innerText = "Reviewer verified tests pass on all inputs and no cheats/hardcoding were used.";
 
-      for (let t of testPills) {
-        await sleep(350);
-        const row = document.getElementById(`test-row-${t.id}`);
-        const pill = row.querySelector('.test-pill');
-        if (t.pass) {
-          pill.innerHTML = '🟢 PASS';
-          pill.className = 'text-emerald-400 font-bold test-pill';
-        } else {
-          pill.innerHTML = '🔴 FAIL';
-          pill.className = 'text-rose-400 font-bold test-pill';
-        }
-      }
+        // Git Action
+        document.getElementById('git-action-text').innerText = "git merge fix-good (Merged to main)";
+        document.getElementById('git-action-text').className = "text-emerald-400 font-semibold";
+        document.getElementById('git-badge').innerText = "MERGED";
+        document.getElementById('git-badge').className = "px-2 py-0.5 rounded text-[10px] bg-emerald-900/60 text-emerald-300 border border-emerald-700";
 
-      await sleep(700);
+        // Logs
+        addLog("$ git worktree add fix-good main");
+        addLog("Maker: Synthesized fix for floating-point calculation.");
+        addLog("Checker: Running test suite + edge case checks...");
+        addLog("Checker: PASS — Solution is robust & general.", "text-emerald-400 font-bold");
+        addLog("$ git merge fix-good --no-ff -m 'fix: good fix approved'");
+        addLog("SUCCESS: Merged into main branch.", "text-emerald-400");
 
-      // STEP 4: Decision
-      const vcard = document.getElementById('verdict-card');
-      if (mode === 'good') {
-        setStep(4, 'active');
-        vcard.className = 'p-4 rounded-xl border border-emerald-500/60 bg-emerald-950/40 flex flex-col items-center justify-center text-center min-h-[160px] pulse-glow-green transition-all';
-        document.getElementById('verdict-icon').innerHTML = '<i data-lucide="check-circle-2" class="w-8 h-8 text-emerald-400"></i>';
-        document.getElementById('verdict-title').innerText = 'VERDICT: PASS';
-        document.getElementById('verdict-title').className = 'text-lg font-extrabold text-emerald-400 tracking-wide';
-        document.getElementById('verdict-desc').innerText = 'Fix is general, handles floating-point math, passes all edge cases, and introduces no cheats.';
-        document.getElementById('checker-verdict-tag').innerText = 'APPROVED (PASS)';
-        document.getElementById('checker-verdict-tag').className = 'text-emerald-400 font-mono font-bold text-xs';
-        document.getElementById('checker-badge').innerText = 'APPROVED';
-
-        logTerminal(`<span class="text-emerald-400 font-bold">Reviewer Result: PASS</span>`);
-        logTerminal(`<span class="text-zinc-300">$ git checkout main</span>`);
-        logTerminal(`<span class="text-zinc-300">$ git merge "fix-${mode}" --no-ff -m "fix: ${mode} fix approved by reviewer"</span>`);
-        logTerminal(`<span class="text-emerald-400 font-semibold">SUCCESS: Merged to main: ${mode} fix PASS</span>`);
-        logTerminal(`<span class="text-zinc-400">$ git worktree remove "fix-${mode}"</span>`);
-
-        document.getElementById('main-commit-hash').innerText = '7f8a10c (Merged)';
-        document.getElementById('main-branch-desc').innerText = 'Latest approved patch merged cleanly into main.';
-        document.getElementById('git-status-badge').innerText = 'MERGED';
-        document.getElementById('git-status-badge').className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-900/60 text-emerald-300 border border-emerald-500/40';
-
-        activeVersion = 'good';
-        document.getElementById('active-calc-version').innerText = 'Good Fix (Approved)';
-        document.getElementById('active-calc-version').className = 'text-xs font-mono font-bold px-2 py-1 rounded bg-emerald-950 text-emerald-300 border border-emerald-700';
-
-        // Trigger celebratory confetti
-        confetti({
-          particleCount: 70,
-          spread: 60,
-          origin: { y: 0.7 }
-        });
+        confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
 
       } else {
-        setStep(4, 'error');
-        vcard.className = 'p-4 rounded-xl border border-rose-500/60 bg-rose-950/40 flex flex-col items-center justify-center text-center min-h-[160px] pulse-glow-red transition-all';
-        document.getElementById('verdict-icon').innerHTML = '<i data-lucide="alert-triangle" class="w-8 h-8 text-rose-400"></i>';
-        document.getElementById('verdict-title').innerText = 'VERDICT: FAIL';
-        document.getElementById('verdict-title').className = 'text-lg font-extrabold text-rose-400 tracking-wide';
-        document.getElementById('verdict-desc').innerText = 'Fix rejected! Reviewer caught hardcoded cheating output and broken division logic. Branch discarded.';
-        document.getElementById('checker-verdict-tag').innerText = 'REJECTED (FAIL)';
-        document.getElementById('checker-verdict-tag').className = 'text-rose-400 font-mono font-bold text-xs';
-        document.getElementById('checker-badge').innerText = 'REJECTED';
+        // Status Bar
+        document.getElementById('status-dot').className = "w-2.5 h-2.5 rounded-full bg-rose-500";
+        document.getElementById('status-text').innerText = "Running Bad Fix: Fake hardcoded fix caught and rejected.";
+        document.getElementById('branch-badge').innerText = "main untouched";
 
-        logTerminal(`<span class="text-rose-400 font-bold">Reviewer Result: FAIL (Hardcoded / Fake Fix Detected)</span>`);
-        logTerminal(`<span class="text-rose-400">CRITICAL: Fix FAILED - not merged to main!</span>`);
-        logTerminal(`<span class="text-zinc-400">$ git worktree remove "fix-${mode}" (Worktree and corrupt patch discarded)</span>`);
+        // Maker
+        document.getElementById('maker-tag').innerText = "Cheated";
+        document.getElementById('maker-tag').className = "text-[11px] font-mono px-2 py-0.5 rounded bg-rose-950 text-rose-300 border border-rose-800";
+        document.getElementById('code-display').innerText = CODE_BAD;
+        document.getElementById('maker-note').innerText = "Maker hardcoded static values (return 0.3) to fake passing the unit test.";
 
-        document.getElementById('git-status-badge').innerText = 'BLOCKED MERGE';
-        document.getElementById('git-status-badge').className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-rose-900/60 text-rose-300 border border-rose-500/40';
+        // Checker
+        document.getElementById('verdict-box').className = "p-4 rounded-xl border border-rose-500/50 bg-rose-950/20 text-center flex flex-col items-center justify-center min-h-[140px] transition-all";
+        document.getElementById('verdict-pill').className = "text-xs font-mono font-bold px-3 py-1 rounded-full bg-rose-600 text-white uppercase tracking-wider mb-2 shadow";
+        document.getElementById('verdict-pill').innerText = "FAIL — Rejected";
+        document.getElementById('verdict-title').innerText = "Hardcoded Cheat Detected";
+        document.getElementById('verdict-title').className = "text-base font-bold text-rose-400";
+        document.getElementById('verdict-reason').innerText = "Reviewer detected that the patch returns fake hardcoded values and fails on other inputs.";
 
-        activeVersion = 'bad';
-        document.getElementById('active-calc-version').innerText = 'Bad Fix (Rejected)';
-        document.getElementById('active-calc-version').className = 'text-xs font-mono font-bold px-2 py-1 rounded bg-rose-950 text-rose-300 border border-rose-700';
-      }
+        // Git Action
+        document.getElementById('git-action-text').innerText = "git worktree remove fix-bad (Branch deleted)";
+        document.getElementById('git-action-text').className = "text-rose-400 font-semibold";
+        document.getElementById('git-badge').innerText = "BLOCKED";
+        document.getElementById('git-badge').className = "px-2 py-0.5 rounded text-[10px] bg-rose-900/60 text-rose-300 border border-rose-700";
 
-      document.getElementById('worktree-status').innerText = 'Removed / Pruned';
-      document.getElementById('worktree-indicator').className = 'w-2 h-2 rounded-full bg-zinc-600';
-
-      lucide.createIcons();
-      document.getElementById('btn-run-good').disabled = false;
-      document.getElementById('btn-run-bad').disabled = false;
-      isRunning = false;
-    }
-
-    // Interactive Calculator Runner
-    function runCalcTest(a, b, op) {
-      document.getElementById('calc-a').value = a;
-      document.getElementById('calc-b').value = b;
-      document.getElementById('calc-op').value = op;
-      calculateManual();
-    }
-
-    function calculateManual() {
-      const a = parseFloat(document.getElementById('calc-a').value);
-      const b = parseFloat(document.getElementById('calc-b').value);
-      const op = document.getElementById('calc-op').value;
-      const resEl = document.getElementById('calc-result');
-
-      try {
-        let result;
-        if (activeVersion === 'bad') {
-          // Cheating implementation
-          if (op === 'add') result = 0.3; // hardcoded
-          else if (op === 'subtract') result = a - b;
-          else if (op === 'multiply') result = (a === 0 || b === 0) ? 5 : a * b; // bug
-          else if (op === 'divide') result = (b === 0) ? 0 : a / b;
-          resEl.innerText = `${result} (Cheating/Bad Mode)`;
-          resEl.className = 'px-3 py-1 rounded bg-rose-950 border border-rose-800 text-rose-400 font-bold';
-        } else if (activeVersion === 'good') {
-          // Good implementation
-          if (op === 'add') {
-            result = Math.floor(a + b + 0.5 * 0.0000001);
-            // float precision check
-            result = Math.round((a + b) * 1e12) / 1e12;
-          } else if (op === 'subtract') {
-            result = a - b;
-          } else if (op === 'multiply') {
-            result = (a === 0 || b === 0) ? 0 : a * b;
-          } else if (op === 'divide') {
-            if (b === 0) throw new Error("ValueError: Cannot divide by zero");
-            result = a / b;
-          }
-          resEl.innerText = `${result} (Clean)`;
-          resEl.className = 'px-3 py-1 rounded bg-emerald-950 border border-emerald-800 text-emerald-400 font-bold';
-        } else {
-          // Initial baseline (standard JS float drift)
-          if (op === 'add') result = a + b;
-          else if (op === 'subtract') result = a - b;
-          else if (op === 'multiply') result = (a === 0 || b === 0) ? 0 : a * b;
-          else if (op === 'divide') {
-            if (b === 0) throw new Error("ValueError: division by zero");
-            result = a / b;
-          }
-          resEl.innerText = `${result}`;
-          resEl.className = 'px-3 py-1 rounded bg-zinc-900 border border-zinc-800 text-amber-400 font-bold';
-        }
-      } catch (err) {
-        resEl.innerText = err.message;
-        resEl.className = 'px-3 py-1 rounded bg-rose-950 border border-rose-800 text-rose-400 font-bold';
+        // Logs
+        addLog("$ git worktree add fix-bad main");
+        addLog("Maker: Applied hardcoded values to bypass test assertion.");
+        addLog("Checker: Running test suite + secret edge cases...");
+        addLog("Checker: FAIL — Hardcoded, not general, still fails.", "text-rose-400 font-bold");
+        addLog("$ git worktree remove fix-bad (Corrupt patch discarded)");
+        addLog("BLOCKED: Main branch remains protected.", "text-rose-400");
       }
     }
   </script>
