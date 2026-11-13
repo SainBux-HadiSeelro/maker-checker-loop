@@ -19,6 +19,16 @@ An interactive single-page web visualizer is available in `index.html`. It demon
 
 ---
 
+## 📋 System Specification (RFC-011)
+
+The complete formal specification for the Maker-Checker protocol is documented in [`SPEC.md`](SPEC.md):
+- **Agent Behavioral Contracts:** Rules, permissions, and anti-cheat constraints for `implementer_synthesizer` and `read_only_evaluator`.
+- **LLM-as-Judge Rubric:** 4-point evaluation matrix (Unit Assertions, Generality Check, Cheat Detection, Regression Risk).
+- **Git Security Gateway:** Ephemeral worktree isolation lifecycle and fast-forward merge criteria.
+- **Verification Benchmark Matrix:** Test scenarios and expected gate decisions.
+
+---
+
 ## What it does
 - `calculator.py` + `test_calculator.py` — buggy functions with failing tests as the starting point.
 - `.opencode/skills/fix-bug/SKILL.md` — the procedure an implementer agent follows: read the failing test, fix only the source file, never touch the tests, no hardcoded fixes.
